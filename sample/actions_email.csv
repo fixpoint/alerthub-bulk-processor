@@ -1,0 +1,2 @@
+"displayName","kind","parameters.to","parameters.cc","parameters.bcc","parameters.subject","parameters.text"
+"メール送信アクション","email","@(@{""name""=""to""; ""email""=""to@kompira.jp""})","@(@{""name""=""cc1""; ""email""=""cc1@kompira.jp""},@{""name""=""cc2""; ""email""=""cc2@kompira.jp""})","@()","件名","本文"

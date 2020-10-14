@@ -76,7 +76,7 @@ function import($inputFilePath, $outputFilePath, $url, $replaceParameter) {
         $jsonText = $_ | ConvertTo-Json -Compress -Depth 5
         $body = [Text.Encoding]::UTF8.GetBytes($jsonText)
         try {
-            $response = Invoke-WebRequest -Headers $httpHeaders -Method Post -Body $body ($targetSpaceDomain+$fixedURL)
+            $response = Invoke-WebRequest -UseBasicParsing -Headers $httpHeaders -Method Post -Body $body ($targetSpaceDomain+$fixedURL)
             $statusCode = $response.StatusCode
         } catch {
             $statusCode = $_.Exception.Response.StatusCode.value__
@@ -95,7 +95,7 @@ function export($outputFilePath, $url) {
     $httpHeaders = @{"Content-type"="application/json"; "X-Authorization"="Token "+$apiToken}
 
     try {
-        $response = Invoke-WebRequest -Headers $httpHeaders -Method Get ($targetSpaceDomain+$url)
+        $response = Invoke-WebRequest -UseBasicParsing -Headers $httpHeaders -Method Get ($targetSpaceDomain+$url)
         $responseBody = $response.Content
     } catch {
         $reader = New-Object System.IO.StreamReader $_.Exception.Response.GetResponseStream()

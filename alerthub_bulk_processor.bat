@@ -10,6 +10,7 @@ rem ファイルの存在確認
 if not exist .\config\config.ps1 (
     echo 「config\config.ps1」がありません。
     echo スクリプト一式を再取得して設定ファイルを正しく配置してください。
+    popd
     pause
     exit 1
 )
@@ -33,6 +34,7 @@ powershell -ExecutionPolicy RemoteSigned -File .\script\alerthub_bulk_processor.
 
 if not %errorlevel% equ 0 (
     echo 処理が失敗しました。スクリプトを終了します。
+    popd
     pause
     exit 1
 )

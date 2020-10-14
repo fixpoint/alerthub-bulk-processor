@@ -61,12 +61,12 @@ function import($inputFilePath, $outputFilePath, $url, $replaceParameter) {
         exit 1
     }
 
-    $importDatas = Import-CSV -Encoding Default $inputFilePath
-    $resultDatas = [System.Collections.ArrayList]::new()
+    $importData = Import-CSV -Encoding Default $inputFilePath
+    $results = [System.Collections.ArrayList]::new()
     $httpHeaders = @{"Content-type"="application/json"; "X-Authorization"="Token "+$apiToken}
 
     #import each row
-    $importDatas | ForEach-Object {
+    $importData | ForEach-Object {
         preprocess $_
         if ($replaceParameter) {
             $fixedURL = replaceURL $url $_.$replaceParameter
@@ -85,10 +85,10 @@ function import($inputFilePath, $outputFilePath, $url, $replaceParameter) {
             $reader.DiscardBufferedData()
             $responseBody = $reader.ReadToEnd()
         }
-        $resultData = [PSCustomObject]@{"Json" = $jsonText; "StatusCode" = $statusCode; "Response" = $responseBody}
-        $resultDatas.Add($resultData)
+        $result = [PSCustomObject]@{"Json" = $jsonText; "StatusCode" = $statusCode; "Response" = $responseBody}
+        $results.Add($result)
     }
-    $resultDatas | Export-Csv -NoTypeInformation $outputFilePath
+    $results | Export-Csv -NoTypeInformation $outputFilePath
 }
 
 function export($outputFilePath, $url) {
@@ -103,8 +103,8 @@ function export($outputFilePath, $url) {
         $reader.DiscardBufferedData()
         $responseBody = $reader.ReadToEnd()
     }
-    $resultDatas = ConvertFrom-Json -InputObject $responseBody
-    $resultDatas."Items" | Export-Csv -NoTypeInformation $outputFilePath -Encoding Default
+    $resultData = ConvertFrom-Json -InputObject $responseBody
+    $resultData."Items" | Export-Csv -NoTypeInformation $outputFilePath -Encoding Default
 }
 
 #main

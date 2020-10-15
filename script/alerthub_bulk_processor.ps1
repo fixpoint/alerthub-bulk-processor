@@ -78,6 +78,7 @@ function import($inputFilePath, $outputFilePath, $url, $replaceParameter) {
         try {
             $response = Invoke-WebRequest -UseBasicParsing -Headers $httpHeaders -Method Post -Body $body ($targetSpaceDomain+$fixedURL)
             $statusCode = $response.StatusCode
+            $responseBody = $response.Content
         } catch {
             $statusCode = $_.Exception.Response.StatusCode.value__
             $reader = New-Object System.IO.StreamReader $_.Exception.Response.GetResponseStream()

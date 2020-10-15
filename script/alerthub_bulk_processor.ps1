@@ -112,15 +112,15 @@ $ErrorActionPreference = "Stop"
 
 if ($process.Contains("import")) {
 
-    $inputFilePath = "" + $inputDir + $processParameters[$process]."fileName"
-    $outputFilePath = "" + $outputDir + $resultFileName
-    $url = $processParameters[$process]."url"
-    $replaceParameter = $processParameters[$process]."replaceParameter"
+    $private:inputFilePath = Join-Path $inputDir $processParameters[$process]."fileName"
+    $private:outputFilePath = Join-Path $outputDir $resultFileName
+    $private:url = $processParameters[$process]."url"
+    $private:replaceParameter = $processParameters[$process]."replaceParameter"
     import $inputFilePath $outputFilePath $url $replaceParameter
 }
 if ($process.Contains("export")) {
 
-    $outputFilePath = "" + $outputDir + $processParameters[$process]."fileName"
-    $url = $processParameters[$process]."url"
+    $private:outputFilePath = Join-Path $outputDir $processParameters[$process]."fileName"
+    $private:url = $processParameters[$process]."url"
     export $outputFilePath $url
 }

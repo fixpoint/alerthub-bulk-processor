@@ -33,8 +33,7 @@ function preprocess($hashObject) {
 
         #dig period separated property
         if ($name.Contains(".")) {
-            $parentName = $name.Split(".")[0]
-            $childName = $name.Split(".")[1]
+            $parentName, $childName = $name.Split(".")
             $childValue = $hashObject.$name
             $child = [PSCustomObject]@{
                 $childName = $childValue

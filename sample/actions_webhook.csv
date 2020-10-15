@@ -1,0 +1,2 @@
+"displayName","kind","parameters.url","parameters.method","parameters.headers","parameters.body"
+"webhook送信アクション","webhook","https://sample.jp/endpoint","POST","@{""Content-Type""=""application/json""; ""Authorization""=""Basic xxxxxx""}","{""caller_id"":""62826bf03710200044e0bfc8bcbe5df1"",""short_description"":""{{message.content.data.trigger}} {{message.content.data.datetime}}""}"

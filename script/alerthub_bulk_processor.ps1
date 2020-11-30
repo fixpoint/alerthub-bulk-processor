@@ -87,6 +87,8 @@ function import($inputFilePath, $outputFilePath, $url, $replaceParameter) {
         }
         $result = [PSCustomObject]@{"Json" = $jsonText; "StatusCode" = $statusCode; "Response" = $responseBody}
         $results.Add($result)
+        
+        Start-Sleep -Milliseconds 500
     }
     $results | Export-Csv -NoTypeInformation $outputFilePath -Encoding Default
 }

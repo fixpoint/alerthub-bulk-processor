@@ -107,8 +107,21 @@ function export($outputFilePath, $url) {
     $resultData."Items" | Export-Csv -NoTypeInformation $outputFilePath -Encoding Default
 }
 
+function setProxy() {
+    if ($proxyServer) {
+        $proxy = New-Object System.Net.WebProxy $proxyServer, $True
+        if ($proxyUser -And $proxyPassword) {
+            $securePassword = ConvertTo-SecureString $proxyPassword -AsPlainText -Force
+            $proxy.Credentials = New-Object -TypeName System.Management.Automation.PSCredential $proxyUser,$securePassword
+        }
+        [System.Net.WebRequest]::DefaultWebProxy = $proxy
+    }
+}
+
 #main
 $ErrorActionPreference = "Stop"
+
+setProxy
 
 if ($process.Contains("import")) {
 

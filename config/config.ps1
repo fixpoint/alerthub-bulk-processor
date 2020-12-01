@@ -9,6 +9,7 @@ $apiToken = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 $resultFileName = "result.csv"
 
 # proxy
-$proxyServer = "proxy.server:8080"
-$proxyUser = "username"
-$proxyPassword = "password"
+# ex) proxyServer = "proxy.server.address:8080"
+$proxyServer = ""
+$proxyUser = ""
+$proxyPassword = ""

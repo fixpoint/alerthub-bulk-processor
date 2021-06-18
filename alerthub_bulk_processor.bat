@@ -18,6 +18,7 @@ echo [1] スコープ一括登録
 echo [2] アクション一括登録
 echo [3] 静観スケジュール一括登録
 echo [4] 静観スケジュール用スコープ一覧取得
+echo [5] スコープ属性一括登録
 echo [9] 終了
 set /p processCode=">"
 
@@ -25,6 +26,7 @@ if /i {%processCode%}=={1} (set process="import_scopes")
 if /i {%processCode%}=={2} (set process="import_actions")
 if /i {%processCode%}=={3} (set process="import_mute_schedules")
 if /i {%processCode%}=={4} (set process="export_scopes")
+if /i {%processCode%}=={5} (set process="import_attributes")
 if /i {%processCode%}=={9} (goto EXIT)
 
 echo. > .\script\alerthub_bulk_processor.ps1:Zone.Identifier

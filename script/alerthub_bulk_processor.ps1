@@ -1,10 +1,11 @@
 Param([string]$process, [string]$inputDir, [string]$outputDir)
 
 $processParameters = @{
-    "import_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes"; "replaceParameter" = $null }
-    "import_actions" = @{ "fileName" = "actions.csv"; "url" = "/api/apps/alerthub/actions"; "replaceParameter" = $null }
-    "import_mute_schedules" = @{ "fileName" = "mute_schedules.csv"; "url" = "/api/apps/alerthub/scopes/{scopeId}/mute-schedules"; "replaceParameter" = "scopeId" }
-    "export_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes"; "replaceParameter" = $null }
+    "import_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes"; "replaceParameter" = $null; "method" = "Post"; "nameParameter" = $null }
+    "import_actions" = @{ "fileName" = "actions.csv"; "url" = "/api/apps/alerthub/actions"; "replaceParameter" = $null; "method" = "Post"; "nameParameter" = $null }
+    "import_mute_schedules" = @{ "fileName" = "mute_schedules.csv"; "url" = "/api/apps/alerthub/scopes/{scopeId}/mute-schedules"; "replaceParameter" = "scopeId"; "method" = "Post"; "nameParameter" = $null }
+    "export_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes?limit=1000"; "replaceParameter" = $null; "method" = "Get"; "nameParameter" = $null }
+    "import_attributes" = @{ "fileName" = "attributes.csv"; "url" = "/api/apps/alerthub/scopes/{scopeId}/attributes/"; "replaceParameter" = "scopeId"; "method" = "Put"; "nameParameter" = "name" }
 }
 
 . ".\config\config.ps1"
@@ -53,7 +54,11 @@ function replaceURL($url, $replaceValue) {
     return $url -replace "{.*}",$replaceValue
 }
 
-function import($inputFilePath, $outputFilePath, $url, $replaceParameter) {
+function createAttributeURL($url, $name) {
+    return $url+$name
+}
+
+function import($inputFilePath, $outputFilePath, $url, $replaceParameter, $method, $nameParameter) {
     #check input file exists
     if (!(Test-Path -LiteralPath $inputFilePath)) {
         Write-Host "ERROR: 一括登録するCSVファイルを配置してください。[$inputFilePath]"
@@ -72,10 +77,15 @@ function import($inputFilePath, $outputFilePath, $url, $replaceParameter) {
         } else {
             $fixedURL = $url
         }
+        if ($nameParameter) {
+            $fixedURL = createAttributeURL $fixedURL $_.$nameParameter
+        } else {
+            $fixedURL = $fixedURL
+        }
         $jsonText = $_ | ConvertTo-Json -Compress -Depth 5
         $body = [Text.Encoding]::UTF8.GetBytes($jsonText)
         try {
-            $response = Invoke-WebRequest -UseBasicParsing -Headers $httpHeaders -Method Post -Body $body ($targetSpaceDomain+$fixedURL)
+            $response = Invoke-WebRequest -UseBasicParsing -Headers $httpHeaders -Method $method -Body $body ($targetSpaceDomain+$fixedURL)
             $statusCode = $response.StatusCode
             $responseBody = $response.Content
         } catch {
@@ -93,11 +103,11 @@ function import($inputFilePath, $outputFilePath, $url, $replaceParameter) {
     $results | Export-Csv -NoTypeInformation $outputFilePath -Encoding Default
 }
 
-function export($outputFilePath, $url) {
+function export($outputFilePath, $url, $method) {
     $httpHeaders = @{"Content-type"="application/json"; "X-Authorization"="Token "+$apiToken}
 
     try {
-        $response = Invoke-WebRequest -UseBasicParsing -Headers $httpHeaders -Method Get ($targetSpaceDomain+$url)
+        $response = Invoke-WebRequest -UseBasicParsing -Headers $httpHeaders -Method $method ($targetSpaceDomain+$url)
         $responseBody = $response.Content
     } catch {
         $reader = New-Object System.IO.StreamReader $_.Exception.Response.GetResponseStream()
@@ -131,11 +141,14 @@ if ($process.Contains("import")) {
     $private:outputFilePath = Join-Path $outputDir $resultFileName
     $private:url = $processParameters[$process]."url"
     $private:replaceParameter = $processParameters[$process]."replaceParameter"
-    import $inputFilePath $outputFilePath $url $replaceParameter
+    $private:method = $processParameters[$process]."method"
+    $private:nameParameter = $processParameters[$process]."nameParameter"
+    import $inputFilePath $outputFilePath $url $replaceParameter $method $nameParameter
 }
 if ($process.Contains("export")) {
 
     $private:outputFilePath = Join-Path $outputDir $processParameters[$process]."fileName"
     $private:url = $processParameters[$process]."url"
-    export $outputFilePath $url
+    $private:method = $processParameters[$process]."method"
+    export $outputFilePath $url $method
 }

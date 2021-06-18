@@ -4,7 +4,7 @@ $processParameters = @{
     "import_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes"; "replaceParameter" = $null; "method" = "Post"; "nameParameter" = $null }
     "import_actions" = @{ "fileName" = "actions.csv"; "url" = "/api/apps/alerthub/actions"; "replaceParameter" = $null; "method" = "Post"; "nameParameter" = $null }
     "import_mute_schedules" = @{ "fileName" = "mute_schedules.csv"; "url" = "/api/apps/alerthub/scopes/{scopeId}/mute-schedules"; "replaceParameter" = "scopeId"; "method" = "Post"; "nameParameter" = $null }
-    "export_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes"; "replaceParameter" = $null; "method" = "Get"; "nameParameter" = $null }
+    "export_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes?limit=1000"; "replaceParameter" = $null; "method" = "Get"; "nameParameter" = $null }
     "import_attributes" = @{ "fileName" = "attributes.csv"; "url" = "/api/apps/alerthub/scopes/{scopeId}/attributes/"; "replaceParameter" = "scopeId"; "method" = "Put"; "nameParameter" = "name" }
 }
 

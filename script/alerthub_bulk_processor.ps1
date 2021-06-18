@@ -1,10 +1,10 @@
 Param([string]$process, [string]$inputDir, [string]$outputDir)
 
 $processParameters = @{
-    "import_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes"; "replaceParameter" = $null }
-    "import_actions" = @{ "fileName" = "actions.csv"; "url" = "/api/apps/alerthub/actions"; "replaceParameter" = $null }
-    "import_mute_schedules" = @{ "fileName" = "mute_schedules.csv"; "url" = "/api/apps/alerthub/scopes/{scopeId}/mute-schedules"; "replaceParameter" = "scopeId" }
-    "export_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes"; "replaceParameter" = $null }
+    "import_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes"; "replaceParameter" = $null; "method" = "Post" }
+    "import_actions" = @{ "fileName" = "actions.csv"; "url" = "/api/apps/alerthub/actions"; "replaceParameter" = $null; "method" = "Post" }
+    "import_mute_schedules" = @{ "fileName" = "mute_schedules.csv"; "url" = "/api/apps/alerthub/scopes/{scopeId}/mute-schedules"; "replaceParameter" = "scopeId"; "method" = "Post" }
+    "export_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes"; "replaceParameter" = $null; "method" = "Get" }
 }
 
 . ".\config\config.ps1"
@@ -53,7 +53,7 @@ function replaceURL($url, $replaceValue) {
     return $url -replace "{.*}",$replaceValue
 }
 
-function import($inputFilePath, $outputFilePath, $url, $replaceParameter) {
+function import($inputFilePath, $outputFilePath, $url, $replaceParameter, $method) {
     #check input file exists
     if (!(Test-Path -LiteralPath $inputFilePath)) {
         Write-Host "ERROR: 一括登録するCSVファイルを配置してください。[$inputFilePath]"
@@ -75,7 +75,7 @@ function import($inputFilePath, $outputFilePath, $url, $replaceParameter) {
         $jsonText = $_ | ConvertTo-Json -Compress -Depth 5
         $body = [Text.Encoding]::UTF8.GetBytes($jsonText)
         try {
-            $response = Invoke-WebRequest -UseBasicParsing -Headers $httpHeaders -Method Post -Body $body ($targetSpaceDomain+$fixedURL)
+            $response = Invoke-WebRequest -UseBasicParsing -Headers $httpHeaders -Method $method -Body $body ($targetSpaceDomain+$fixedURL)
             $statusCode = $response.StatusCode
             $responseBody = $response.Content
         } catch {
@@ -93,11 +93,11 @@ function import($inputFilePath, $outputFilePath, $url, $replaceParameter) {
     $results | Export-Csv -NoTypeInformation $outputFilePath -Encoding Default
 }
 
-function export($outputFilePath, $url) {
+function export($outputFilePath, $url, $method) {
     $httpHeaders = @{"Content-type"="application/json"; "X-Authorization"="Token "+$apiToken}
 
     try {
-        $response = Invoke-WebRequest -UseBasicParsing -Headers $httpHeaders -Method Get ($targetSpaceDomain+$url)
+        $response = Invoke-WebRequest -UseBasicParsing -Headers $httpHeaders -Method $method ($targetSpaceDomain+$url)
         $responseBody = $response.Content
     } catch {
         $reader = New-Object System.IO.StreamReader $_.Exception.Response.GetResponseStream()
@@ -131,11 +131,13 @@ if ($process.Contains("import")) {
     $private:outputFilePath = Join-Path $outputDir $resultFileName
     $private:url = $processParameters[$process]."url"
     $private:replaceParameter = $processParameters[$process]."replaceParameter"
-    import $inputFilePath $outputFilePath $url $replaceParameter
+    $private:method = $processParameters[$process]."method"
+    import $inputFilePath $outputFilePath $url $replaceParameter $method
 }
 if ($process.Contains("export")) {
 
     $private:outputFilePath = Join-Path $outputDir $processParameters[$process]."fileName"
     $private:url = $processParameters[$process]."url"
-    export $outputFilePath $url
+    $private:method = $processParameters[$process]."method"
+    export $outputFilePath $url $method
 }

@@ -1,10 +1,10 @@
 Param([string]$process, [string]$inputDir, [string]$outputDir)
 
 $processParameters = @{
-    "import_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes"; "replaceParameter" = $null; "method" = "Post" }
-    "import_actions" = @{ "fileName" = "actions.csv"; "url" = "/api/apps/alerthub/actions"; "replaceParameter" = $null; "method" = "Post" }
-    "import_mute_schedules" = @{ "fileName" = "mute_schedules.csv"; "url" = "/api/apps/alerthub/scopes/{scopeId}/mute-schedules"; "replaceParameter" = "scopeId"; "method" = "Post" }
-    "export_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes"; "replaceParameter" = $null; "method" = "Get" }
+    "import_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes"; "replaceParameter" = $null; "method" = "Post"; "nameParameter" = $null }
+    "import_actions" = @{ "fileName" = "actions.csv"; "url" = "/api/apps/alerthub/actions"; "replaceParameter" = $null; "method" = "Post"; "nameParameter" = $null }
+    "import_mute_schedules" = @{ "fileName" = "mute_schedules.csv"; "url" = "/api/apps/alerthub/scopes/{scopeId}/mute-schedules"; "replaceParameter" = "scopeId"; "method" = "Post"; "nameParameter" = $null }
+    "export_scopes" = @{ "fileName" = "scopes.csv"; "url" = "/api/apps/alerthub/scopes"; "replaceParameter" = $null; "method" = "Get"; "nameParameter" = $null }
 }
 
 . ".\config\config.ps1"
@@ -53,7 +53,7 @@ function replaceURL($url, $replaceValue) {
     return $url -replace "{.*}",$replaceValue
 }
 
-function import($inputFilePath, $outputFilePath, $url, $replaceParameter, $method) {
+function import($inputFilePath, $outputFilePath, $url, $replaceParameter, $method, $nameParameter) {
     #check input file exists
     if (!(Test-Path -LiteralPath $inputFilePath)) {
         Write-Host "ERROR: 一括登録するCSVファイルを配置してください。[$inputFilePath]"
@@ -71,6 +71,11 @@ function import($inputFilePath, $outputFilePath, $url, $replaceParameter, $metho
             $fixedURL = replaceURL $url $_.$replaceParameter
         } else {
             $fixedURL = $url
+        }
+        if ($nameParameter) {
+            $fixedURL = createAttributeURL $fixedURL $_.$nameParameter
+        } else {
+            $fixedURL = $fixedURL
         }
         $jsonText = $_ | ConvertTo-Json -Compress -Depth 5
         $body = [Text.Encoding]::UTF8.GetBytes($jsonText)
@@ -132,7 +137,8 @@ if ($process.Contains("import")) {
     $private:url = $processParameters[$process]."url"
     $private:replaceParameter = $processParameters[$process]."replaceParameter"
     $private:method = $processParameters[$process]."method"
-    import $inputFilePath $outputFilePath $url $replaceParameter $method
+    $private:nameParameter = $processParameters[$process]."nameParameter"
+    import $inputFilePath $outputFilePath $url $replaceParameter $method $nameParameter
 }
 if ($process.Contains("export")) {
 

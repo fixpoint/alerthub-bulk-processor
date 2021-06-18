@@ -54,6 +54,10 @@ function replaceURL($url, $replaceValue) {
     return $url -replace "{.*}",$replaceValue
 }
 
+function createAttributeURL($url, $name) {
+    return $url+$name
+}
+
 function import($inputFilePath, $outputFilePath, $url, $replaceParameter, $method, $nameParameter) {
     #check input file exists
     if (!(Test-Path -LiteralPath $inputFilePath)) {

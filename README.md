@@ -1,4 +1,6 @@
 # alerthub-bulk-processor
+[![Repository owner](https://img.shields.io/badge/Repository%20owner-Owner%20%2F%20AlertHub-orange)](https://github.com/orgs/fixpoint/teams/owners-alerthub/discussions)
+
 AlertHub の設定を一括登録するためのスクリプトです。
 本リポジトリのスクリプトを Windows 上で実行することで、CSV ファイルを元にした一括登録が行えます。
 
